@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor de Bloco de Código</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #editor {
+      height: calc(50% - 30px); /* Ajuste para acomodar o botão de execução */
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: scroll;
+    }
+
+    #output {
+      height: calc(50% - 30px); /* Ajuste para acomodar o botão de execução */
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    button {
+      display: block;
+      margin: 15px auto;
+    }
+
+    .code-block {
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      padding: 5px;
+      cursor: move; /* Cursor de arrastar */
+    }
+  </style>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+</head>
+<body>
+  <div id="editor">
+    <!-- Área onde os blocos serão adicionados -->
+  </div>
+  <div id="output">
+    <!-- Área onde será exibido o resultado do código -->
+  </div>
+
+  <button onclick="runCode()">Executar</button>
+  <button onclick="saveCode()">Salvar</button>
+  <button onclick="loadCode()">Carregar</button>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+    // Variável para contar o número de blocos de código
+    let blockCount = 0;
+
+    // Função para adicionar um novo bloco de código ao editor
+    function addCodeBlock(code, language) {
+      const editor = document.getElementById('editor');
+      const block = document.createElement('div');
+      block.textContent = code;
+      block.classList.add('code-block');
+      block.setAttribute('data-language', language);
+      block.setAttribute('id', 'block-' + blockCount);
+      editor.appendChild(block);
+      blockCount++;
+      makeDraggable(block); // Tornar o bloco arrastável após adicioná-lo
+    }
+
+    // Função para tornar um bloco de código arrastável
+    function makeDraggable(element) {
+      $(element).draggable({
+        containment: "parent",
+        scroll: false
+      });
+    }
+
+    // Função para executar o código HTML, CSS e JavaScript
+    function runCode() {
+      const editor = document.getElementById('editor');
+      const output = document.getElementById('output');
+
+      // Limpar a área de saída
+      output.innerHTML = '';
+
+      // Obter o código do editor
+      const htmlCode = editor.innerHTML;
+
+      // Executar o código HTML
+      const iframe = document.createElement('iframe');
+      iframe.width = '100%';
+      iframe.height = '100%';
+      iframe.style.border = 'none';
+
+      // Inserir o código HTML no iframe
+      output.appendChild(iframe);
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(htmlCode);
+      doc.close();
+    }
+
+    // Função para salvar o código atual
+    function saveCode() {
+      const editor = document.getElementById('editor');
+      const code = editor.innerHTML;
+      localStorage.setItem('savedCode', code);
+      alert('Código salvo com sucesso!');
+    }
+
+    // Função para carregar código previamente salvo
+    function loadCode() {
+      const savedCode = localStorage.getItem('savedCode');
+      if (savedCode) {
+        const editor = document.getElementById('editor');
+        editor.innerHTML = savedCode;
+        alert('Código carregado com sucesso!');
+      } else {
+        alert('Nenhum código salvo encontrado.');
+      }
+    }
+
+    // Adicionando blocos de exemplo
+    addCodeBlock('<h1>Hello, world!</h1>', 'html');
+    addCodeBlock('body { background-color: #f4f4f4; }', 'css');
+    addCodeBlock('console.log("Hello, world!");', 'javascript');
+  </script>
+</body>
+</html>
